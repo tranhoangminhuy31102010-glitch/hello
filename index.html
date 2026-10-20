@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Chúc mừng 20/10</title>
+<style>
+:root{
+  --bg1:#ffe4ec;--bg2:#ffc2d6;--card:rgba(255,255,255,.88);--ink:#9d174d;--title:#be185d;--btn:#db2777;--btnink:#fff;
+  box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){--bg1:#3b0a24;--bg2:#6b1240;--card:rgba(40,10,25,.85);--ink:#fbcfe8;--title:#f9a8d4;--btn:#ec4899;--btnink:#fff}
+}
+:root[data-theme="dark"]{--bg1:#3b0a24;--bg2:#6b1240;--card:rgba(40,10,25,.85);--ink:#fbcfe8;--title:#f9a8d4;--btn:#ec4899;--btnink:#fff}
+html,body{height:100%;margin:0}
+body{background:linear-gradient(160deg,var(--bg1),var(--bg2));font-family:Georgia,"Times New Roman",serif;color:var(--ink);overflow:hidden;position:relative}
+#flowers{position:fixed;inset:0;pointer-events:none;overflow:hidden}
+.f{position:absolute;top:-10%;animation:fall linear infinite;opacity:.9}
+@keyframes fall{to{transform:translateY(115vh) rotate(360deg)}}
+.wrap{position:relative;z-index:2;height:100%;display:flex;align-items:center;justify-content:center;padding:16px;box-sizing:border-box}
+.card{background:var(--card);backdrop-filter:blur(6px);border-radius:24px;padding:24px 22px;max-width:480px;width:100%;box-sizing:border-box;text-align:center;box-shadow:0 10px 40px rgba(190,24,93,.25);max-height:100%;overflow-y:auto}
+h1{margin:0 0 8px;font-size:1.6rem;color:var(--title)}
+p.sub{margin:0 0 16px;font-size:1.05rem}
+#qr{display:inline-block;background:#fff;padding:12px;border-radius:16px;margin-bottom:16px}
+#qr img,#qr canvas{display:block}
+button{font:inherit;font-size:1.1rem;background:var(--btn);color:var(--btnink);border:0;border-radius:999px;padding:12px 28px;cursor:pointer}
+#msg{font-size:1.3rem;line-height:1.7;text-align:left;min-height:12em}
+.cur{display:inline-block;width:2px;background:var(--title);margin-left:2px;animation:b 1s steps(1) infinite}
+@keyframes b{50%{opacity:0}}
+.hide{display:none}
+</style>
+</head>
+<body>
+<div id="flowers"></div>
+<div class="wrap">
+  <div class="card" id="start">
+    <h1>🌸 Chúc mừng 20/10 🌸</h1>
+    <p class="sub">Quét mã QR bằng điện thoại để nhận lời chúc</p>
+    <div id="qr"></div><br>
+    <button id="open">Mở lời chúc ngay</button>
+  </div>
+  <div class="card hide" id="wish">
+    <h1>✿ Chúc mừng 20/10 ✿</h1>
+    <div id="msg"></div>
+    <button id="back" style="margin-top:16px">← Quay lại mã QR</button>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+var PAGE_URL = "__PAGE_URL__";
+var TEXT = "Nhân ngày Phụ nữ Việt Nam 20/10, mình muốn gửi đến bạn một lời chúc thật chân thành. Cảm ơn bạn vì đã luôn dịu dàng, kiên cường và âm thầm làm cho cuộc sống trở nên ấm áp hơn mỗi ngày. Chúc bạn luôn xinh đẹp theo cách rạng rỡ nhất của riêng mình, luôn khỏe mạnh, bình an và được yêu thương đúng như những gì bạn xứng đáng nhận được. Mong mọi ước mơ của bạn sẽ nở hoa rực rỡ, mọi vất vả đều được đền đáp, và nụ cười luôn ở lại trên môi bạn. Chúc bạn một ngày 20/10 thật hạnh phúc! 💐";
+
+// hoa rơi
+(function(){
+  var E=["🌸","🌺","🌷","🌹","💐","🌼","🌻"],box=document.getElementById("flowers");
+  for(var i=0;i<28;i++){
+    var s=document.createElement("span");s.className="f";s.textContent=E[i%E.length];
+    s.style.left=Math.random()*100+"%";
+    s.style.fontSize=(18+Math.random()*26)+"px";
+    s.style.animationDuration=(7+Math.random()*9)+"s";
+    s.style.animationDelay=(-Math.random()*14)+"s";
+    box.appendChild(s);
+  }
+})();
+
+// QR
+var base = PAGE_URL.indexOf("__")===0 ? location.href.split("#")[0] : PAGE_URL;
+try{
+  new QRCode(document.getElementById("qr"),{text:base+"#chuc",width:200,height:200,colorDark:"#be185d",colorLight:"#ffffff"});
+}catch(e){}
+
+// gõ chữ
+var typing=false,run=0;
+function show(){
+  if(typing)return;typing=true;var my=++run;
+  document.getElementById("start").classList.add("hide");
+  document.getElementById("wish").classList.remove("hide");
+  var el=document.getElementById("msg"),i=0;
+  var cur=document.createElement("span");cur.className="cur";cur.innerHTML="&nbsp;";
+  var chars=Array.from(TEXT);
+  (function step(){
+    if(my!==run||i>=chars.length){return;}
+    el.textContent=chars.slice(0,++i).join("");el.appendChild(cur);
+    var c=chars[i-1],d=45+Math.random()*50;
+    if(".!?".indexOf(c)>-1)d=600;else if(",".indexOf(c)>-1)d=300;
+    setTimeout(step,d);
+  })();
+}
+document.getElementById("open").onclick=show;
+document.getElementById("back").onclick=function(){
+  run++;typing=false;
+  document.getElementById("wish").classList.add("hide");
+  document.getElementById("start").classList.remove("hide");
+  try{history.replaceState(null,"",location.pathname+location.search);}catch(e){}
+};
+if(location.hash==="#chuc")show();
+</script>
+</body>
+</html>
